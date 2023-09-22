@@ -1,0 +1,74 @@
+version: '3'
+
+#networks:
+#  bench_network:
+#    driver: bridge
+
+services:
+  apache:
+    image: httpd:2.4.57-alpine
+    ports:
+      - 9100:80
+    volumes:
+      - $PWD/html:/usr/local/apache2/htdocs:ro
+      - $PWD/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+    cpu_shares: 100
+    mem_limit: 134217728 # 128MiB
+    memswap_limit: 134217728 # 128MiB
+
+  nginx:
+    image: nginx:1.25.2-alpine
+    ports:
+      - 9101:80
+    volumes:
+      - $PWD/html:/usr/share/nginx/html:ro
+      - $PWD/nginx.conf:/etc/nginx/nginx.conf:ro
+    cpu_shares: 100
+    mem_limit: 134217728 # 128MiB
+    memswap_limit: 134217728 # 128MiB
+
+  lighttpd:
+    image: avhost/docker-lighttpd
+    ports:
+      - 9102:8080
+    volumes:
+    #  - $PWD/lighttpd.conf:/lighttpd.conf
+      - $PWD/html:/var/www/htdocs
+    cpu_shares: 100
+    mem_limit: 134217728 # 128MiB
+    memswap_limit: 134217728 # 128MiB
+
+  cherokee:
+    # image: casjaysdevdocker/cherokee
+    build:
+      context: ./cherokee
+    ports:
+      - 9103:8080
+      - 9090:9090
+    volumes:
+      - $PWD/html:/var/www
+      # - $PWD/cherokee/cherokee.conf:/etc/cherokee
+    cpu_shares: 100
+    mem_limit: 134217728 # 128MiB
+    memswap_limit: 134217728 # 128MiB
+
+  gwan:
+    image: retailify/docker-gwan
+    ports:
+      - 9104:80
+    volumes:
+      - $PWD/html:/opt/www
+    cpu_shares: 100
+    mem_limit: 134217728 # 128MiB
+    memswap_limit: 134217728 # 128MiB
+
+  caddy:
+    image: caddy:2.7.4
+    ports:
+      - 9105:80
+    volumes:
+      - $PWD/html:/usr/share/caddy/
+    #  - $PWD/caddy_data:/data
+    cpu_shares: 100
+    mem_limit: 134217728 # 128MiB
+    memswap_limit: 134217728 # 128MiB
